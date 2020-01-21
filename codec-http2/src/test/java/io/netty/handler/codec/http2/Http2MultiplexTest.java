@@ -394,7 +394,7 @@ public abstract class Http2MultiplexTest<C extends Http2FrameCodec> {
     }
 
     /**
-     * A child channel for a HTTP/2 stream in IDLE state (that is no headers sent or received),
+     * A child channel for an HTTP/2 stream in IDLE state (that is no headers sent or received),
      * should not emit a RST_STREAM frame on close, as this is a connection error of type protocol error.
      */
     @Test
@@ -433,7 +433,7 @@ public abstract class Http2MultiplexTest<C extends Http2FrameCodec> {
     @Test
     public void outboundStreamShouldNotWriteResetFrameOnClose_IfStreamDidntExist() {
         when(frameWriter.writeHeaders(eqCodecCtx(), anyInt(),
-                any(Http2Headers.class), anyInt(), anyShort(), anyBoolean(), anyInt(), anyBoolean(),
+                any(Http2Headers.class), anyInt(), anyBoolean(),
                 any(ChannelPromise.class))).thenAnswer(new Answer<ChannelFuture>() {
 
             private boolean headersWritten;
@@ -443,9 +443,9 @@ public abstract class Http2MultiplexTest<C extends Http2FrameCodec> {
                 // refuses to allocate a new stream due to having received a GOAWAY.
                 if (!headersWritten) {
                     headersWritten = true;
-                    return ((ChannelPromise) invocationOnMock.getArgument(8)).setFailure(new Exception("boom"));
+                    return ((ChannelPromise) invocationOnMock.getArgument(5)).setFailure(new Exception("boom"));
                 }
-                return ((ChannelPromise) invocationOnMock.getArgument(8)).setSuccess();
+                return ((ChannelPromise) invocationOnMock.getArgument(5)).setSuccess();
             }
         });
 
@@ -503,11 +503,11 @@ public abstract class Http2MultiplexTest<C extends Http2FrameCodec> {
 
         Http2Headers headers = new DefaultHttp2Headers();
         when(frameWriter.writeHeaders(eqCodecCtx(), anyInt(),
-                eq(headers), anyInt(), anyShort(), anyBoolean(), anyInt(), anyBoolean(),
+                eq(headers), anyInt(), anyBoolean(),
                 any(ChannelPromise.class))).thenAnswer(new Answer<ChannelFuture>() {
             @Override
             public ChannelFuture answer(InvocationOnMock invocationOnMock) {
-                return ((ChannelPromise) invocationOnMock.getArgument(8)).setFailure(
+                return ((ChannelPromise) invocationOnMock.getArgument(5)).setFailure(
                         new StreamException(childChannel.stream().id(), Http2Error.STREAM_CLOSED, "Stream Closed"));
             }
         });
@@ -565,11 +565,11 @@ public abstract class Http2MultiplexTest<C extends Http2FrameCodec> {
 
         Http2Headers headers = new DefaultHttp2Headers();
         when(frameWriter.writeHeaders(eqCodecCtx(), anyInt(),
-               eq(headers), anyInt(), anyShort(), anyBoolean(), anyInt(), anyBoolean(),
+               eq(headers), anyInt(), anyBoolean(),
                any(ChannelPromise.class))).thenAnswer(new Answer<ChannelFuture>() {
            @Override
            public ChannelFuture answer(InvocationOnMock invocationOnMock) {
-               return ((ChannelPromise) invocationOnMock.getArgument(8)).setFailure(
+               return ((ChannelPromise) invocationOnMock.getArgument(5)).setFailure(
                        new Http2NoMoreStreamIdsException());
             }
         });
@@ -653,11 +653,11 @@ public abstract class Http2MultiplexTest<C extends Http2FrameCodec> {
 
         Http2Headers headers = new DefaultHttp2Headers();
         when(frameWriter.writeHeaders(eqCodecCtx(), anyInt(),
-                eq(headers), anyInt(), anyShort(), anyBoolean(), anyInt(), anyBoolean(),
+                eq(headers), anyInt(), anyBoolean(),
                 any(ChannelPromise.class))).thenAnswer(new Answer<ChannelFuture>() {
             @Override
             public ChannelFuture answer(InvocationOnMock invocationOnMock) {
-                ChannelPromise promise = invocationOnMock.getArgument(8);
+                ChannelPromise promise = invocationOnMock.getArgument(5);
                 writePromises.offer(promise);
                 return promise;
             }
